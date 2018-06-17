@@ -7,6 +7,7 @@ public class Vendor {
     private   Integer dodge ;
     private   Integer critical;
     private   Integer initiative ;
+    private   Integer originalAttacks;
 
     public Vendor(String name, Integer health, Integer damage, Integer attacks, Integer dodge, Integer critical, Integer initiative) {
         this.name = name;
@@ -16,6 +17,36 @@ public class Vendor {
         this.dodge = dodge;
         this.critical = critical;
         this.initiative = initiative;
+        this.originalAttacks = attacks;
+    }
+
+    public void resetAttack(){
+        attacks = originalAttacks;
+    }
+
+    public void attack(Vendor defendingVendor) throws BattleIsOverException{
+
+        if(BattleUtilities.vendorCanAttack(this)){
+            setAttacks(getAttacks()-1);
+
+            if(BattleUtilities.vendorIsHit(defendingVendor)){
+                Integer healthBeforeAttack = defendingVendor.getHealth();
+                defendingVendor.takeDamage(BattleUtilities.getCalculatedDamage(this));
+                System.out.println(LoggingUtilty.getAttackEventLog(this,defendingVendor,healthBeforeAttack));
+            } else {
+                System.out.println(LoggingUtilty.getMissedAttackEventLog(this,defendingVendor));
+            }
+
+        }
+
+
+    }
+
+    public void takeDamage(Integer damage) throws BattleIsOverException{
+        setHealth(getHealth() - damage);
+        if(BattleUtilities.vendorIsDead(this)){
+            throw new VendorHasDiedException(getName() + " has fallen in battle.");
+        }
     }
 
     public String getName() {
